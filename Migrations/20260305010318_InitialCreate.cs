@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -17,10 +19,10 @@ namespace carGooBackend.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -31,13 +33,13 @@ namespace carGooBackend.Migrations
                 name: "Preduzeca",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyState = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyCity = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyMail = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyPIB = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyPhone = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompanyName = table.Column<string>(type: "text", nullable: false),
+                    CompanyState = table.Column<string>(type: "text", nullable: false),
+                    CompanyCity = table.Column<string>(type: "text", nullable: false),
+                    CompanyMail = table.Column<string>(type: "text", nullable: false),
+                    CompanyPIB = table.Column<string>(type: "text", nullable: false),
+                    CompanyPhone = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,11 +50,11 @@ namespace carGooBackend.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -69,26 +71,26 @@ namespace carGooBackend.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PreduzeceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Languages = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserPicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    FirstName = table.Column<string>(type: "text", nullable: false),
+                    LastName = table.Column<string>(type: "text", nullable: false),
+                    PreduzeceId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Languages = table.Column<List<string>>(type: "text[]", nullable: false),
+                    UserPicture = table.Column<string>(type: "text", nullable: true),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -105,11 +107,11 @@ namespace carGooBackend.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -126,10 +128,10 @@ namespace carGooBackend.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -146,8 +148,8 @@ namespace carGooBackend.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -170,10 +172,10 @@ namespace carGooBackend.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -190,12 +192,12 @@ namespace carGooBackend.Migrations
                 name: "Obavestenje",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Naslov = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    DatumObjavljivanja = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Sadrzaj = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AutorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Naslov = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    DatumObjavljivanja = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Sadrzaj = table.Column<string>(type: "text", nullable: false),
+                    AutorId = table.Column<string>(type: "text", nullable: false),
+                    ProfilePicture = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -212,21 +214,21 @@ namespace carGooBackend.Migrations
                 name: "PonudaVozila",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DrzavaU = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DrzavaI = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MestoU = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MestoI = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RadiusI = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Utovar = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Istovar = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Duzina = table.Column<double>(type: "float", nullable: false),
-                    Tezina = table.Column<double>(type: "float", nullable: false),
-                    TipNadogradnje = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TipKamiona = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IdPreduzeca = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdKorisnika = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Vreme = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    DrzavaU = table.Column<string>(type: "text", nullable: false),
+                    DrzavaI = table.Column<string>(type: "text", nullable: false),
+                    MestoU = table.Column<string>(type: "text", nullable: false),
+                    MestoI = table.Column<string>(type: "text", nullable: false),
+                    RadiusI = table.Column<string>(type: "text", nullable: false),
+                    Utovar = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Istovar = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Duzina = table.Column<double>(type: "double precision", nullable: false),
+                    Tezina = table.Column<double>(type: "double precision", nullable: false),
+                    TipNadogradnje = table.Column<string>(type: "text", nullable: false),
+                    TipKamiona = table.Column<string>(type: "text", nullable: false),
+                    IdPreduzeca = table.Column<Guid>(type: "uuid", nullable: false),
+                    IdKorisnika = table.Column<string>(type: "text", nullable: false),
+                    Vreme = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -249,23 +251,23 @@ namespace carGooBackend.Migrations
                 name: "Ponude",
                 columns: table => new
                 {
-                    PonudaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DrzavaU = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DrzavaI = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MestoU = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MestoI = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Utovar = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Istovar = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Duzina = table.Column<double>(type: "float", nullable: false),
-                    Tezina = table.Column<double>(type: "float", nullable: false),
-                    TipNadogradnje = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TipKamiona = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VrstaTereta = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ZamenaPaleta = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Cena = table.Column<int>(type: "int", nullable: false),
-                    IdPreduzeca = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdKorisnika = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Vreme = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    PonudaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DrzavaU = table.Column<string>(type: "text", nullable: false),
+                    DrzavaI = table.Column<string>(type: "text", nullable: false),
+                    MestoU = table.Column<string>(type: "text", nullable: false),
+                    MestoI = table.Column<string>(type: "text", nullable: false),
+                    Utovar = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Istovar = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Duzina = table.Column<double>(type: "double precision", nullable: false),
+                    Tezina = table.Column<double>(type: "double precision", nullable: false),
+                    TipNadogradnje = table.Column<string>(type: "text", nullable: false),
+                    TipKamiona = table.Column<string>(type: "text", nullable: false),
+                    VrstaTereta = table.Column<string>(type: "text", nullable: false),
+                    ZamenaPaleta = table.Column<string>(type: "text", nullable: false),
+                    Cena = table.Column<int>(type: "integer", nullable: false),
+                    IdPreduzeca = table.Column<Guid>(type: "uuid", nullable: false),
+                    IdKorisnika = table.Column<string>(type: "text", nullable: false),
+                    Vreme = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -303,8 +305,7 @@ namespace carGooBackend.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -335,8 +336,7 @@ namespace carGooBackend.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Obavestenje_AutorId",
