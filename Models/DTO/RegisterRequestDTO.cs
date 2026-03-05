@@ -10,7 +10,6 @@
         public Guid PreduzeceId { get; set; }
         public string[] Roles { get; set; }
         public List<string> Languages { get; set; }
-        public IFormFile Image { get; set; }
     }
 
 }

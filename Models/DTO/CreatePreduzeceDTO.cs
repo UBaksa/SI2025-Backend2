@@ -10,6 +10,5 @@
         public string CompanyPhone { get; set; }
         public string[] KorisnikIds { get; set; }
 
-        public IFormFile companyPhoto { get; set; }
     }
 }
