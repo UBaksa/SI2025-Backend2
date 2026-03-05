@@ -13,12 +13,36 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Npgsql;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<CarGooDataContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var cs = builder.Configuration.GetConnectionString("DefaultConnection")
+             ?? builder.Configuration["DATABASE_URL"];
+    if (cs != null && cs.StartsWith("postgres", StringComparison.OrdinalIgnoreCase))
+    {
+        var uri = new Uri(cs);
+        var userInfo = uri.UserInfo.Split(':', 2);
+        var username = Uri.UnescapeDataString(userInfo[0]);
+        var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+
+        var db = uri.AbsolutePath.TrimStart('/');
+
+        cs = new NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Port = uri.Port,
+            Database = db,
+            Username = username,
+            Password = password,
+            SslMode = SslMode.Require,
+            TrustServerCertificate = true
+        }.ToString();
+    }
+    options.UseNpgsql(cs);
+});
 
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
