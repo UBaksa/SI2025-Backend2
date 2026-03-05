@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,7 +20,11 @@ builder.Services.AddDbContext<CarGooDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
-builder.Services.AddScoped<IEmailService, EmailService>();  
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<ImageUploadService>();
+builder.Services.AddScoped<CloudinaryService>();
+
+
 
 builder.Services.AddIdentityCore<Korisnik>()
     .AddRoles<IdentityRole>()
@@ -106,11 +109,10 @@ var app = builder.Build();
 app.UseCors("AllowReactApp");
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+
 
 app.UseHttpsRedirection();
 

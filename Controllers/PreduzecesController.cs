@@ -44,7 +44,6 @@ namespace carGooBackend.Controllers
                     CompanyMail = p.CompanyMail,
                     CompanyPIB = p.CompanyPIB,
                     CompanyPhone = p.CompanyPhone,
-                    CompanyPhoto = p.CompanyPhoto,
                     Korisnici = p.Korisnici.Select(k => new ReturnKorisnikDTO
                     {
                         FirstName = k.FirstName,
@@ -74,7 +73,6 @@ namespace carGooBackend.Controllers
                     CompanyMail = p.CompanyMail,
                     CompanyPIB = p.CompanyPIB,
                     CompanyPhone = p.CompanyPhone,
-                    CompanyPhoto = p.CompanyPhoto,
                     Korisnici = p.Korisnici.Select(k => new ReturnKorisnikDTO
                     {
                         FirstName = k.FirstName,
@@ -144,7 +142,6 @@ namespace carGooBackend.Controllers
                 {
                     Id = Guid.NewGuid(),
                     CompanyName = createPreduzeceDto.CompanyName,
-                    CompanyPhoto = imgUrl,
                     CompanyState = createPreduzeceDto.CompanyState,
                     CompanyCity = createPreduzeceDto.CompanyCity,
                     CompanyMail = createPreduzeceDto.CompanyMail,

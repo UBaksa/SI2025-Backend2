@@ -17,25 +17,23 @@ namespace carGooBackend.Data
         public DbSet<Ponuda> Ponude { get; set;}
         public DbSet<PonudaVozila> PonudaVozilas { get; set;}
         public DbSet<Obavestenje> Obavestenja { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // Definisanje veze između Korisnik i Preduzece
             builder.Entity<Korisnik>()
                 .HasOne(k => k.Preduzece)  
                 .WithMany(p => p.Korisnici) 
                 .HasForeignKey(k => k.PreduzeceId)  
                 .OnDelete(DeleteBehavior.Restrict);  
 
-            // Veza između Ponuda i Korisnik
             builder.Entity<Ponuda>()
                 .HasOne(p => p.Korisnik)
                 .WithMany()
                 .HasForeignKey(p => p.IdKorisnika)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Definisanje uloga
             var dispecerRoleId = "8a000e3b-b915-43f1-b90e-b28075ec8cac";
             var prevoznikRoleId = "415a7c65-81dd-4fe3-9c44-9493db860c4b";
             var kontrolerRoleId = "415a7c65-81dd-4fe3-9c44-9493db860c4c";

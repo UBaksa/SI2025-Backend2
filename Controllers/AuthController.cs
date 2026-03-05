@@ -46,12 +46,21 @@ namespace carGooBackend.Controllers
             {
                 return BadRequest(new { Message = $"Email '{registerRequestDto.Mail}' je već zauzet." });
             }
-            var result = await _imageUploadService.UploadImageAsync(registerRequestDto.Image);
-            if (!result.Success)
+            string imgUrl = null;
+
+            if (registerRequestDto.Image != null)
             {
-                return BadRequest(result.ErrorMessage);
+                var result = await _imageUploadService.UploadImageAsync(registerRequestDto.Image);
+                if (!result.Success)
+                    return BadRequest(result.ErrorMessage);
+
+                imgUrl = result.Url;
             }
-            var imgUrl = result.Url;
+            else
+            {
+                imgUrl = "https://res.cloudinary.com/djhncrqvne/image/upload/v1731345613/cargoo_users/default-avatar.png";
+            }
+
 
             var identityUser = new Korisnik
             {
@@ -63,7 +72,7 @@ namespace carGooBackend.Controllers
                 PreduzeceId = registerRequestDto.PreduzeceId,
                 Languages = registerRequestDto.Languages ?? new List<string>(),
                 EmailConfirmed = false,
-                UserPicture = null
+                UserPicture = imgUrl,
             };
 
             var identityResult = await userManager.CreateAsync(identityUser, registerRequestDto.Password);
@@ -195,18 +204,17 @@ namespace carGooBackend.Controllers
             {
                 var user = await userManager.FindByIdAsync(id);
                 if (user == null)
-                {
                     return NotFound(new { Message = "Korisnik nije pronađen." });
-                }
-                var resultimg = await _imageUploadService.UploadImageAsync(model.UserPicture);
-                if (!resultimg.Success)
+
+                if (model.UserPicture != null)
                 {
-                    return BadRequest(resultimg.ErrorMessage);
+                    var resultimg = await _imageUploadService.UploadImageAsync(model.UserPicture);
+                    if (!resultimg.Success)
+                        return BadRequest(resultimg.ErrorMessage);
+
+                    user.UserPicture = resultimg.Url;
                 }
 
-                var imgUrl = resultimg.Url;
-
-                user.UserPicture = imgUrl;
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.Email = model.Email;
@@ -215,9 +223,7 @@ namespace carGooBackend.Controllers
 
                 var result = await userManager.UpdateAsync(user);
                 if (!result.Succeeded)
-                {
                     return BadRequest(new { Message = "Greška pri ažuriranju korisnika.", Errors = result.Errors });
-                }
 
                 return Ok(new { Message = "Korisnik uspešno ažuriran." });
             }
@@ -226,6 +232,7 @@ namespace carGooBackend.Controllers
                 return StatusCode(500, new { Message = "Server error", Error = ex.Message });
             }
         }
+
 
         // GET api/auth/GetAllUsers
         [HttpGet]

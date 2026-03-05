@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using carGooBackend.Data;
 using carGooBackend.DTOs;
 using carGooBackend.Models;
+using System.Security.Claims;
+using carGooBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace carGooBackend.Controllers
 {
@@ -15,10 +18,13 @@ namespace carGooBackend.Controllers
     public class ObavestenjesController : ControllerBase
     {
         private readonly CarGooDataContext _context;
+        private readonly CloudinaryService _cloudinary;
 
-        public ObavestenjesController(CarGooDataContext context)
+       
+        public ObavestenjesController(CarGooDataContext context, CloudinaryService cloudinary)
         {
             _context = context;
+            _cloudinary = cloudinary;
         }
 
         // GET: api/Obavestenjes
@@ -34,6 +40,7 @@ namespace carGooBackend.Controllers
                     DatumObjavljivanja = o.DatumObjavljivanja,
                     Sadrzaj = o.Sadrzaj,
                     ProfilePicture = o.ProfilePicture,
+                    AutorId = o.AutorId,
                     AutorFirstName = o.Autor.FirstName,
                     AutorLastName = o.Autor.LastName
                 })
@@ -52,6 +59,7 @@ namespace carGooBackend.Controllers
                     Naslov = o.Naslov,
                     DatumObjavljivanja = o.DatumObjavljivanja,
                     Sadrzaj = o.Sadrzaj,
+                    AutorId = o.AutorId,
                     ProfilePicture = o.ProfilePicture,
                     AutorFirstName = o.Autor.FirstName,
                     AutorLastName = o.Autor.LastName
@@ -67,82 +75,99 @@ namespace carGooBackend.Controllers
         }
 
         // PUT: api/Obavestenjes/5
+        [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutObavestenje(Guid id, ObavestenjeDTO obavestenjeDto)
+        public async Task<IActionResult> PutObavestenje(Guid id, [FromForm] UpdateObavestenjeDTO dto)
         {
-            if (id != obavestenjeDto.Id)
+            if (id != dto.Id) return BadRequest("ID mismatch.");
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var obavestenje = await _context.Obavestenje.FirstOrDefaultAsync(o => o.Id == id);
+            if (obavestenje == null) return NotFound();
+
+            obavestenje.Naslov = dto.Naslov.Trim();
+            obavestenje.Sadrzaj = dto.Sadrzaj.Trim();
+
+            // Ako je poslat fajl -> upload i pregazi URL
+            if (dto.Image != null && dto.Image.Length > 0)
             {
-                return BadRequest();
+                if (!dto.Image.ContentType.StartsWith("image/"))
+                    return BadRequest("Dozvoljene su samo slike.");
+
+                obavestenje.ProfilePicture = await _cloudinary.UploadImageAsync(dto.Image, "obavestenja");
+            }
+            else
+            {
+                // Ako nije poslat fajl, ali je poslat URL string
+                // (ako hoces da moze i ovako)
+                if (dto.ProfilePicture != null)
+                    obavestenje.ProfilePicture = dto.ProfilePicture;
             }
 
-            var obavestenje = await _context.Obavestenje.Include(o => o.Autor).FirstOrDefaultAsync(o => o.Id == id);
-            if (obavestenje == null)
-            {
-                return NotFound();
-            }
-
-            // Ažuriranje entiteta
-            obavestenje.Naslov = obavestenjeDto.Naslov;
-            obavestenje.DatumObjavljivanja = obavestenjeDto.DatumObjavljivanja;
-            obavestenje.Sadrzaj = obavestenjeDto.Sadrzaj;
-            obavestenje.ProfilePicture = obavestenjeDto.ProfilePicture;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ObavestenjeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
+
+
         // POST: api/Obavestenjes
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<ObavestenjeDTO>> PostObavestenje(ObavestenjeDTO obavestenjeDto)
+        public async Task<ActionResult<ObavestenjeDTO>> PostObavestenje([FromForm] CreateObavestenjeDTO dto)
         {
-            // Proveravamo da li korisnik postoji u bazi
-            var autor = await _context.Users.FirstOrDefaultAsync(u => u.Id == obavestenjeDto.AutorId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Autor iz JWT-a (preporuka)
+            var autorId =
+                User?.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                User?.FindFirstValue("sub") ??
+                dto.AutorId;
+
+            if (string.IsNullOrWhiteSpace(autorId))
+                return Unauthorized("Nije moguće odrediti autora.");
+
+            var autor = await _context.Users.FirstOrDefaultAsync(u => u.Id == autorId);
             if (autor == null)
+                return NotFound("Autor ne postoji.");
+
+            // 1) ako je poslat fajl -> upload na cloudinary
+            // 2) ako nije -> ostaje dto.ProfilePicture (URL) ili null
+            string? imageUrl = dto.ProfilePicture;
+
+            if (dto.Image != null && dto.Image.Length > 0)
             {
-                return NotFound("Autor sa zadatim ID-jem ne postoji.");
+                // (opciono) basic validacija tipa fajla
+                if (!dto.Image.ContentType.StartsWith("image/"))
+                    return BadRequest("Dozvoljene su samo slike.");
+
+                imageUrl = await _cloudinary.UploadImageAsync(dto.Image, "obavestenja");
             }
 
             var obavestenje = new Obavestenje
             {
                 Id = Guid.NewGuid(),
-                Naslov = obavestenjeDto.Naslov,
+                Naslov = dto.Naslov.Trim(),
+                Sadrzaj = dto.Sadrzaj.Trim(),
                 DatumObjavljivanja = DateTime.UtcNow,
-                Sadrzaj = obavestenjeDto.Sadrzaj,
-                ProfilePicture = obavestenjeDto.ProfilePicture,
-                AutorId = obavestenjeDto.AutorId
+                AutorId = autorId,
+                ProfilePicture = imageUrl
             };
 
             _context.Obavestenje.Add(obavestenje);
             await _context.SaveChangesAsync();
 
-            // Mapiranje na DTO za povratak
-            var responseDto = new ObavestenjeDTO
+            return CreatedAtAction(nameof(GetObavestenje), new { id = obavestenje.Id }, new ObavestenjeDTO
             {
                 Id = obavestenje.Id,
                 Naslov = obavestenje.Naslov,
-                DatumObjavljivanja = obavestenje.DatumObjavljivanja,
                 Sadrzaj = obavestenje.Sadrzaj,
+                DatumObjavljivanja = obavestenje.DatumObjavljivanja,
                 ProfilePicture = obavestenje.ProfilePicture,
+                AutorId = obavestenje.AutorId,
                 AutorFirstName = autor.FirstName,
                 AutorLastName = autor.LastName
-            };
-
-            return CreatedAtAction("GetObavestenje", new { id = obavestenje.Id }, responseDto);
+            });
         }
 
         // DELETE: api/Obavestenjes/5

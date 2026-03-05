@@ -12,8 +12,8 @@ using carGooBackend.Data;
 namespace carGooBackend.Migrations
 {
     [DbContext(typeof(CarGooDataContext))]
-    [Migration("20250126142305_Image add")]
-    partial class Imageadd
+    [Migration("20260301221434_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -458,10 +458,6 @@ namespace carGooBackend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyPhone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyPhoto")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

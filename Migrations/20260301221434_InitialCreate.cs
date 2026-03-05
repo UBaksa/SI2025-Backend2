@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace carGooBackend.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -73,6 +73,8 @@ namespace carGooBackend.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PreduzeceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Languages = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserPicture = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -96,7 +98,7 @@ namespace carGooBackend.Migrations
                         column: x => x.PreduzeceId,
                         principalTable: "Preduzeca",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -185,6 +187,65 @@ namespace carGooBackend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Obavestenje",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Naslov = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DatumObjavljivanja = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Sadrzaj = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AutorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProfilePicture = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Obavestenje", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Obavestenje_AspNetUsers_AutorId",
+                        column: x => x.AutorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PonudaVozila",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DrzavaU = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DrzavaI = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MestoU = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MestoI = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RadiusI = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Utovar = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Istovar = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Duzina = table.Column<double>(type: "float", nullable: false),
+                    Tezina = table.Column<double>(type: "float", nullable: false),
+                    TipNadogradnje = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TipKamiona = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IdPreduzeca = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdKorisnika = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Vreme = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PonudaVozila", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PonudaVozila_AspNetUsers_IdKorisnika",
+                        column: x => x.IdKorisnika,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PonudaVozila_Preduzeca_IdPreduzeca",
+                        column: x => x.IdPreduzeca,
+                        principalTable: "Preduzeca",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Ponude",
                 columns: table => new
                 {
@@ -203,21 +264,21 @@ namespace carGooBackend.Migrations
                     ZamenaPaleta = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Cena = table.Column<int>(type: "int", nullable: false),
                     IdPreduzeca = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdKorisnika = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PreduzeceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    KorisnikId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    IdKorisnika = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Vreme = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Ponude", x => x.PonudaId);
                     table.ForeignKey(
-                        name: "FK_Ponude_AspNetUsers_KorisnikId",
-                        column: x => x.KorisnikId,
+                        name: "FK_Ponude_AspNetUsers_IdKorisnika",
+                        column: x => x.IdKorisnika,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Ponude_Preduzeca_PreduzeceId",
-                        column: x => x.PreduzeceId,
+                        name: "FK_Ponude_Preduzeca_IdPreduzeca",
+                        column: x => x.IdPreduzeca,
                         principalTable: "Preduzeca",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -278,14 +339,29 @@ namespace carGooBackend.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ponude_KorisnikId",
-                table: "Ponude",
-                column: "KorisnikId");
+                name: "IX_Obavestenje_AutorId",
+                table: "Obavestenje",
+                column: "AutorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ponude_PreduzeceId",
+                name: "IX_PonudaVozila_IdKorisnika",
+                table: "PonudaVozila",
+                column: "IdKorisnika");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PonudaVozila_IdPreduzeca",
+                table: "PonudaVozila",
+                column: "IdPreduzeca");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ponude_IdKorisnika",
                 table: "Ponude",
-                column: "PreduzeceId");
+                column: "IdKorisnika");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ponude_IdPreduzeca",
+                table: "Ponude",
+                column: "IdPreduzeca");
         }
 
         /// <inheritdoc />
@@ -305,6 +381,12 @@ namespace carGooBackend.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Obavestenje");
+
+            migrationBuilder.DropTable(
+                name: "PonudaVozila");
 
             migrationBuilder.DropTable(
                 name: "Ponude");

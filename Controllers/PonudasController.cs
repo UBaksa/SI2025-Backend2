@@ -266,7 +266,6 @@ namespace carGooBackend.Controllers
                 Cena = ponuda.Cena,
                 ZamenaPaleta = ponuda.ZamenaPaleta,
                 Vreme = ponuda.Vreme,
-                CompanyPhotoUrl = ponuda.Preduzece.CompanyPhoto
             }).ToList();
 
             return Ok(ponudeDTO);

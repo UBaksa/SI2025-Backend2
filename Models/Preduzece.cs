@@ -10,7 +10,6 @@
         public string CompanyPIB { get; set; }
         public string CompanyPhone { get; set; }
 
-        public string CompanyPhoto { get; set; }
         public virtual ICollection<Korisnik> Korisnici{ get; set; } = new List<Korisnik>();
     }
 }

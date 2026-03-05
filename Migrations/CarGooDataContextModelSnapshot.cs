@@ -458,10 +458,6 @@ namespace carGooBackend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CompanyPhoto")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("CompanyState")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

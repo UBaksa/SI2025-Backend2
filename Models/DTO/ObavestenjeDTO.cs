@@ -1,5 +1,5 @@
 ﻿using System;
-
+using Microsoft.AspNetCore.Http;
 namespace carGooBackend.DTOs
 {
     public class ObavestenjeDTO
@@ -13,6 +13,6 @@ namespace carGooBackend.DTOs
         public string AutorLastName { get; set; }
         public string AutorId { get; set; }
 
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

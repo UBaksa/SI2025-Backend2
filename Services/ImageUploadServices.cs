@@ -1,51 +1,68 @@
-﻿using System.Text.Json;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Threading.Tasks;
 
 namespace carGooBackend.Services
 {
+    public class ImageUploadResult
+    {
+        public bool Success { get; set; }
+        public string Url { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
     public class ImageUploadService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly Cloudinary _cloudinary;
 
-        public ImageUploadService(IHttpClientFactory httpClientFactory)
+        public ImageUploadService(IConfiguration configuration)
         {
-            _httpClientFactory = httpClientFactory;
+            var cloudName = configuration["Cloudinary:CloudName"];
+            var apiKey = configuration["Cloudinary:ApiKey"];
+            var apiSecret = configuration["Cloudinary:ApiSecret"];
+
+            var acc = new Account(cloudName, apiKey, apiSecret);
+            _cloudinary = new Cloudinary(acc)
+            {
+                // dobijemo HTTPS url
+                Api = { Secure = true }
+            };
         }
 
-        public async Task<(bool Success, string? Url, string? ErrorMessage)> UploadImageAsync(IFormFile file)
+        public async Task<ImageUploadResult> UploadImageAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return (false, null, "No file uploaded.");
+                return new ImageUploadResult { Success = false, ErrorMessage = "Fajl nije poslat." };
 
-            var apiKey = "970620cae606996fc4cabf114bbac83c";
-            var apiUrl = "https://api.imghippo.com/v1/upload";
-
-            if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(apiUrl))
-                return (false, null, "API key or URL is missing.");
-
-            using var content = new MultipartFormDataContent();
-            await using var stream = file.OpenReadStream();
-            var streamContent = new StreamContent(stream);
-            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
-
-            content.Add(streamContent, "file", file.FileName);
-            content.Add(new StringContent(apiKey), "api_key");
-
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.PostAsync(apiUrl, content);
-
-            if (!response.IsSuccessStatusCode)
-                return (false, null, $"Failed to upload image. Status code: {(int)response.StatusCode}");
-
-            var responseData = await response.Content.ReadAsStringAsync();
-            using var jsonDoc = JsonDocument.Parse(responseData);
-
-            if (jsonDoc.RootElement.TryGetProperty("data", out var dataElement) &&
-                dataElement.TryGetProperty("url", out var urlElement))
+            try
             {
-                return (true, urlElement.GetString(), null);
-            }
+                using var stream = file.OpenReadStream();
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = "cargoo_users" // možeš promeniti folder
+                };
 
-            return (false, null, "Response did not contain a valid URL.");
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK && uploadResult.StatusCode != System.Net.HttpStatusCode.Created)
+                {
+                    return new ImageUploadResult { Success = false, ErrorMessage = $"Upload error: {uploadResult.Error?.Message}" };
+                }
+
+                return new ImageUploadResult
+                {
+                    Success = true,
+                    Url = uploadResult.SecureUrl?.ToString() ?? uploadResult.Url?.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ImageUploadResult { Success = false, ErrorMessage = ex.Message };
+            }
         }
     }
 }

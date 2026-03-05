@@ -7,7 +7,6 @@ namespace carGooBackend.Services
     {
         public static PonudaDetailsDTO ToPonudaDetailsDTO(Ponuda ponuda)
         {
-            // Kreiraj DTO koristeći bazne informacije iz PonudeDTO
             var dto = new PonudaDetailsDTO
             {
                 PonudaId = ponuda.PonudaId,
@@ -35,7 +34,6 @@ namespace carGooBackend.Services
                     CompanyPhone = ponuda.Preduzece.CompanyPhone,
                     CompanyMail = ponuda.Preduzece.CompanyMail,
                     CompanyPIB = ponuda.Preduzece.CompanyPIB,
-                    CompanyPhoto = ponuda.Preduzece.CompanyPhoto
                 } : null,
                 Korisnik = ponuda.Korisnik != null ? new KorisnikDetailsDTO
                 {
