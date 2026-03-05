@@ -89,11 +89,14 @@ builder.Services.AddControllers()
 // CORS Configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp", builder =>
+    options.AddPolicy("AllowReactApp", p =>
     {
-        builder.WithOrigins("http://localhost:3000")
-               .AllowAnyHeader()
-               .AllowAnyMethod();
+        p.WithOrigins(
+            "http://localhost:3000",
+            "https://si-2025-vn9n.vercel.app"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
