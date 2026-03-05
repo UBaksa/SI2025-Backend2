@@ -8,7 +8,7 @@ namespace carGooBackend.Services
     public class OfferCleanupService : BackgroundService
     {
         private readonly IServiceProvider _services;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromHours(1); 
+        private readonly TimeSpan _checkInterval = TimeSpan.FromHours(1);
 
         public OfferCleanupService(IServiceProvider services)
         {
@@ -22,10 +22,9 @@ namespace carGooBackend.Services
                 using (var scope = _services.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<CarGooDataContext>();
-
-                    // Brise ponudu gde je datum utovara prosaooo
+                    var todayUtc = DateTime.UtcNow.Date;
                     var expiredOffers = await dbContext.Ponude
-                        .Where(p => p.Utovar.Date < DateTime.Now.Date)
+                        .Where(p => p.Utovar < todayUtc)
                         .ToListAsync(stoppingToken);
 
                     if (expiredOffers.Any())
