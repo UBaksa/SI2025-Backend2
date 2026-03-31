@@ -19,7 +19,7 @@ namespace carGooBackend.Services
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var apiKey = _configuration["SendGrid__ApiKey"];
+            var apiKey = _configuration["SendGrid:ApiKey"];
             var client = new SendGridClient(apiKey);
 
             var from = new EmailAddress("ujkanovicbakir@gmail.com", "CarGoo");
