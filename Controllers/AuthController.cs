@@ -82,9 +82,8 @@ namespace carGooBackend.Controllers
                 var token = await userManager.GenerateEmailConfirmationTokenAsync(identityUser);
 
                 // Create confirmation link
-                var confirmationLink = Url.Action("ConfirmEmail", "Auth",
-                    new { userId = identityUser.Id, token = token },
-                    protocol: HttpContext.Request.Scheme);
+                var backendUrl = _configuration["BackendUrl"] ?? "https://si2025-backend2-production.up.railway.app";
+                var confirmationLink = $"{backendUrl}/api/Auth/ConfirmEmail?userId={identityUser.Id}&token={Uri.EscapeDataString(token)}";
 
                 // Send confirmation email
                 var message = $@"
@@ -126,9 +125,8 @@ namespace carGooBackend.Controllers
             {
                 // Generate new confirmation token and link
                 var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                var confirmationLink = Url.Action("ConfirmEmail", "Auth",
-                    new { userId = user.Id, token = token },
-                    protocol: HttpContext.Request.Scheme);
+                var backendUrl = _configuration["BackendUrl"] ?? "https://si2025-backend2-production.up.railway.app";
+                var confirmationLink = $"{backendUrl}/api/Auth/ConfirmEmail?userId={user.Id}&token={Uri.EscapeDataString(token)}";
 
                 // Resend confirmation email
                 var message = $@"
