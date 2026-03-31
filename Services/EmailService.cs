@@ -1,9 +1,8 @@
-﻿using System.Net.Mail;
-using System.Net;
+﻿using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace carGooBackend.Services
 {
-    // Services/EmailService.cs
     public interface IEmailService
     {
         Task SendEmailAsync(string email, string subject, string message);
@@ -20,24 +19,14 @@ namespace carGooBackend.Services
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var emailSettings = _configuration.GetSection("EmailSettings");
+            var apiKey = _configuration["SendGrid__ApiKey"];
+            var client = new SendGridClient(apiKey);
 
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(emailSettings["SenderEmail"], emailSettings["SenderName"]),
-                Subject = subject,
-                Body = message,
-                IsBodyHtml = true
-            };
-            mailMessage.To.Add(email);
+            var from = new EmailAddress("ujkanovicbakir@gmail.com", "CarGoo");
+            var to = new EmailAddress(email);
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, "", message);
 
-            using (var client = new SmtpClient(emailSettings["SmtpServer"], int.Parse(emailSettings["SmtpPort"])))
-            {
-                client.EnableSsl = true;
-                client.Credentials = new NetworkCredential(emailSettings["SmtpUsername"], emailSettings["SmtpPassword"]);
-                await client.SendMailAsync(mailMessage);
-            }
+            await client.SendEmailAsync(msg);
         }
     }
-
 }
