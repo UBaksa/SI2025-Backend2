@@ -129,15 +129,20 @@ namespace carGooBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<Preduzece>> PostPreduzece([FromForm] CreatePreduzeceDTO createPreduzeceDto)
         {
-
             try
             {
-                var result = await _imageUploadService.UploadImageAsync(createPreduzeceDto.companyPhoto);
-                if (!result.Success)
+                string imgUrl = "https://res.cloudinary.com/djhncrqvne/image/upload/v1731345613/cargoo_users/default-avatar.png";
+
+                if (createPreduzeceDto.companyPhoto != null)
                 {
-                    return BadRequest(result.ErrorMessage);
+                    var result = await _imageUploadService.UploadImageAsync(createPreduzeceDto.companyPhoto);
+                    if (!result.Success)
+                    {
+                        return BadRequest(result.ErrorMessage);
+                    }
+                    imgUrl = result.Url;
                 }
-                var imgUrl = result.Url;
+
                 var preduzece = new Preduzece
                 {
                     Id = Guid.NewGuid(),
@@ -149,24 +154,19 @@ namespace carGooBackend.Controllers
                     CompanyPhone = createPreduzeceDto.CompanyPhone
                 };
 
-                // Fetch and add Korisnici based on provided IDs
                 if (createPreduzeceDto.KorisnikIds != null && createPreduzeceDto.KorisnikIds.Any())
                 {
                     foreach (var korisnikId in createPreduzeceDto.KorisnikIds)
                     {
-                        // Retrieve the user as a tracked entity from the DbContext
                         var korisnik = await _context.Users.FirstOrDefaultAsync(u => u.Id == korisnikId);
                         if (korisnik == null)
                         {
                             return NotFound(new { Message = $"User with ID {korisnikId} not found." });
                         }
-
-                        // Add the Korisnik to the Preduzece's Korisnici collection
                         preduzece.Korisnici.Add(korisnik);
                     }
                 }
 
-                // Add the Preduzece to the context
                 _context.Preduzeca.Add(preduzece);
                 await _context.SaveChangesAsync();
 
