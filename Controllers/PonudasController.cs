@@ -92,8 +92,8 @@ namespace carGooBackend.Controllers
                 DrzavaI = createPonudeDTO.DrzavaI,
                 MestoU = createPonudeDTO.MestoU,
                 MestoI = createPonudeDTO.MestoI,
-                Utovar = createPonudeDTO.Utovar,
-                Istovar = createPonudeDTO.Istovar,
+                Utovar = DateTime.SpecifyKind(createPonudeDTO.Utovar, DateTimeKind.Utc),
+                Istovar = DateTime.SpecifyKind(createPonudeDTO.Istovar, DateTimeKind.Utc),
                 Duzina = createPonudeDTO.Duzina,
                 Tezina = createPonudeDTO.Tezina,
                 TipNadogradnje = createPonudeDTO.TipNadogradnje,
@@ -103,7 +103,7 @@ namespace carGooBackend.Controllers
                 Cena = createPonudeDTO.Cena,
                 IdPreduzeca = createPonudeDTO.IdPreduzeca,
                 IdKorisnika = createPonudeDTO.IdKorisnika,
-                Vreme = DateTime.Now
+                Vreme = DateTime.UtcNow
 
             };
             //use domain to create Ponuda 
@@ -156,8 +156,8 @@ namespace carGooBackend.Controllers
             ponuda.DrzavaI = updatePonudeDTO.DrzavaI;
             ponuda.MestoU = updatePonudeDTO.MestoU;
             ponuda.MestoI = updatePonudeDTO.MestoI;
-            ponuda.Utovar = updatePonudeDTO.Utovar;
-            ponuda.Istovar = updatePonudeDTO.Istovar;
+            ponuda.Utovar = DateTime.SpecifyKind(updatePonudeDTO.Utovar, DateTimeKind.Utc);
+            ponuda.Istovar = DateTime.SpecifyKind(updatePonudeDTO.Istovar, DateTimeKind.Utc);
             ponuda.Duzina = updatePonudeDTO.Duzina;
             ponuda.Tezina = updatePonudeDTO.Tezina;
             ponuda.TipNadogradnje = updatePonudeDTO.TipNadogradnje;
