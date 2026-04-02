@@ -7,6 +7,8 @@
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public string Languages { get; set; }
+
+        public string? NewPassword { get; set; }
         public IFormFile? UserPicture { get; set; }
     }
 }

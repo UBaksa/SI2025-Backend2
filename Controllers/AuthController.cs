@@ -212,6 +212,11 @@ namespace carGooBackend.Controllers
 
                     user.UserPicture = resultimg.Url;
                 }
+                if (!string.IsNullOrEmpty(model.NewPassword))
+                {
+                    var token = await userManager.GeneratePasswordResetTokenAsync(user);
+                    await userManager.ResetPasswordAsync(user, token, model.NewPassword);
+                }
 
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
