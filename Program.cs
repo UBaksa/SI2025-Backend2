@@ -127,6 +127,12 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<carGooBackend.GraphQL.Query>()
+    .AddProjections()
+    .AddFiltering()
+    .AddSorting();
 builder.Services.AddHostedService<OfferCleanupService>();
 builder.Services.AddHostedService<VehicleOfferCleanupService>();
 builder.Services.AddHttpClient();
@@ -140,10 +146,11 @@ using (var scope = app.Services.CreateScope())
 
 // Apply CORS policy
 app.UseCors("AllowReactApp");
+app.MapGraphQL();
 
 // Configure the HTTP request pipeline.
 
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 
 
