@@ -56,30 +56,28 @@ namespace carGooBackend.Controllers
         // PUT: api/PonudaVozilas/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPonudaVozila(Guid id, PonudaVozila ponudaVozila)
+        public async Task<IActionResult> PutPonudaVozila(Guid id, UpdatePonudaVoziloDTO dto)
         {
-            if (id != ponudaVozila.Id)
+            var ponudaVozila = await _context.PonudaVozila.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (ponudaVozila == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(ponudaVozila).State = EntityState.Modified;
+            ponudaVozila.DrzavaU = dto.DrzavaU;
+            ponudaVozila.DrzavaI = dto.DrzavaI;
+            ponudaVozila.MestoU = dto.MestoU;
+            ponudaVozila.MestoI = dto.MestoI;
+            ponudaVozila.RadiusI = dto.RadiusI;
+            ponudaVozila.Utovar = DateTime.SpecifyKind(dto.Utovar, DateTimeKind.Utc);
+            ponudaVozila.Istovar = DateTime.SpecifyKind(dto.Istovar, DateTimeKind.Utc);
+            ponudaVozila.Duzina = dto.Duzina;
+            ponudaVozila.Tezina = dto.Tezina;
+            ponudaVozila.TipNadogradnje = dto.TipNadogradnje;
+            ponudaVozila.TipKamiona = dto.TipKamiona;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PonudaVozilaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
