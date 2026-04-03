@@ -1,5 +1,7 @@
 ﻿using carGooBackend.Data;
 using carGooBackend.Models;
+using HotChocolate;
+using HotChocolate.Data;
 
 namespace carGooBackend.GraphQL
 {
