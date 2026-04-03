@@ -130,6 +130,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<carGooBackend.GraphQL.Query>()
+    .AddMutationType<carGooBackend.GraphQL.Mutation>()
     .AddProjections()
     .AddFiltering()
     .AddSorting();
